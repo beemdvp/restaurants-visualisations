@@ -14,7 +14,6 @@ export default function Restaurants({ service }) {
 
   async function handleVenueForm({ venue, clientId: newClientId, clientSecret: newClientSecret }) {
     setSelectedVenue(null);
-    console.log(await service.getVenues(venue, newClientId, newClientSecret));
     setFoundVenues(await service.getVenues(venue, newClientId, newClientSecret));
     setClientId(newClientId);
     setClientSecret(newClientSecret);
