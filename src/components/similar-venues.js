@@ -70,20 +70,23 @@ export default function SimilarVenues({ service, startVenue, clientId, clientSec
     let isSubscribed = true;
     if(lastVenue) {
       setRequestDone(false);
-      service.getSimilarVenuesGraphNodes(lastVenue.id, lastVenue.name, clientId, clientSecret)
-        .then(({ newData, newSimilarVenues }) => {
-          if (isSubscribed) {
-            setRequestDone(true);
-            const { nodes, links } = newData;
-            addNodesToGraph(nodes, links);
-            addToNewBatch(newSimilarVenues);
-          }
-        });
+      if (clientId && clientSecret) {
+        service.getSimilarVenuesGraphNodes(lastVenue.id, lastVenue.name, clientId, clientSecret)
+          .then(({ newData, newSimilarVenues }) => {
+            if (isSubscribed) {
+              setRequestDone(true);
+              const { nodes, links } = newData;
+              addNodesToGraph(nodes, links);
+              addToNewBatch(newSimilarVenues);
+            }
+          });
+      }
+
     }
     return () => {
       isSubscribed = false;
     }
-  }, [lastVenue, service]);
+  }, [lastVenue, service, clientId, clientSecret]);
 
   // Periodically get similar venues once every 3 seconds unless stopped
   useEffect(() => {
@@ -109,12 +112,14 @@ export default function SimilarVenues({ service, startVenue, clientId, clientSec
     function setInitialNodeAndSimilarVenues() {
       if (service && startVenue) {
         if (!data) {
-          service.getSimilarVenuesGraphNodes(startVenue.id, startVenue.name, clientId, clientSecret).then(({ newData, newSimilarVenues }) => {
-            if (isSubscribed) {
-              setData(newData);
-              setSimilarVenues(newSimilarVenues);
-            }
-          });
+          if (clientId && clientSecret) {
+            service.getSimilarVenuesGraphNodes(startVenue.id, startVenue.name, clientId, clientSecret).then(({ newData, newSimilarVenues }) => {
+              if (isSubscribed) {
+                setData(newData);
+                setSimilarVenues(newSimilarVenues);
+              }
+            });
+          }
         }
       }
     }
@@ -123,7 +128,7 @@ export default function SimilarVenues({ service, startVenue, clientId, clientSec
     return () => {
       isSubscribed = false;
     }
-  }, [service, data, startVenue])
+  }, [service, data, startVenue, clientId, clientSecret])
 
   return (
     <div className="similar-venues">
